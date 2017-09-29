@@ -16,7 +16,7 @@ class Shader:
         if count < 1:
             return
         shader = glCreateShader(type)
-        src = (c_char_p * count)(*strings)
+        src = (c_char_p * count)(*strings.encode())
         glShaderSource(shader, count, cast(pointer(src), POINTER(POINTER(c_char))), None)
         glCompileShader(shader)
 

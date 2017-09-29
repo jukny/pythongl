@@ -1,7 +1,8 @@
 import pyglet
 from OpenGL.GL import *
 import yaml
-import Shader
+from Shader import *
+
 
 class GWindow (pyglet.window.Window):
 
