@@ -1,7 +1,7 @@
 import pyglet
 from OpenGL.GL import *
 import yaml
-from Shader import *
+from Shader.Shader import *
 
 
 class GWindow (pyglet.window.Window):
@@ -25,18 +25,19 @@ class GWindow (pyglet.window.Window):
         self.set_fullscreen(self.configuration['window']['fullscreen'])
         self.set_caption(self.configuration['window']['caption'])
         self.set_mouse_cursor()
-        with open(self.configuration['OpenGL']['vertex_shader']) as glsl:
+        # Something goes wrong reading the text file
+        with open(self.configuration['OpenGL']['vertex_shader'], encoding='utf-8') as glsl:
             try:
-                self.vertex_shader_code = glsl.read()
+                self.vertex_shader_code = bytes(glsl.read().encode('utf-8'))
             except IOError as ie:
                 print(ie)
                 exit(1)
-        with open(self.configuration['OpenGL']['fragment_shader']) as glsl:
+        with open(self.configuration['OpenGL']['fragment_shader'], encoding='utf-8') as glsl:
             try:
-                self.fragment_shader_code = glsl.read()
+                self.fragment_shader_code = bytes(glsl.read().encode('utf-8'))
             except IOError as ie:
                 print(ie)
-        self.shader = Shader(self.vertex_shader_code, self.fragment_shader_code)
+        self.shader = Shader([self.vertex_shader_code], [self.fragment_shader_code])
 
     def on_key_press(self, symbol, mods):
         if symbol == pyglet.window.key.ESCAPE:
