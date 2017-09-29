@@ -1,0 +1,10 @@
+window:
+    caption: "Hello World"
+    width: 320
+    height: 240
+    fullscreen: No
+
+OpenGL:
+    vertex_shader:  "lib/v_shader.glsl"
+    fragment_shader: "lib/f_shader.glsl"
+    geom_shader: ""
