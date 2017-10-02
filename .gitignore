@@ -5,3 +5,6 @@
 .idea/workspace.xml
 .idea/workspace.xml
 .idea/pythongl.iml
+*.pyc
+.idea/workspace.xml
+__pycache__/Shader.cpython-36.pyc
