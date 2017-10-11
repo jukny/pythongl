@@ -1,5 +1,5 @@
 from pyglet.gl import *
-from ctypes import c_char_p, cast, pointer, POINTER, c_char, c_int, byref, create_string_buffer, c_float
+from ctypes import *
 
 
 class Shader:
