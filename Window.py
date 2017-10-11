@@ -3,7 +3,7 @@ import yaml
 
 from Shader import *
 from Mesh import Mesh
-from ctypes import *
+from pyglet.clock import schedule_interval, get_fps
 
 
 class GWindow (pyglet.window.Window):
@@ -40,6 +40,7 @@ class GWindow (pyglet.window.Window):
                 print(ie)
         self.shader = Shader([self.vertex_shader_code], [self.fragment_shader_code])
         self.mesh = Mesh('shapes/triangle.yml')
+        #schedule_interval(self.update, get_fps())
 
     def on_key_press(self, symbol, mods):
         if symbol == pyglet.window.key.ESCAPE:
@@ -51,6 +52,8 @@ class GWindow (pyglet.window.Window):
         self.mesh.draw(self.shader)
         self.shader.unbind()
 
+    def update(self, dt):
+       self.mesh.transform(dt, get_fps())
 
 if __name__ == '__main__':
     win = GWindow()

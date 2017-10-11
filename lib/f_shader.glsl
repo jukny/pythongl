@@ -1,9 +1,12 @@
 #version 330
 
-in vec3 vColor;
+out vec4 oTexture;
 
-out vec4 oColor;
+in vec3 vColor;
+in vec2 TexCoord;
+
+uniform sampler2D vTexture;
 
 void main() {
-    oColor = vec4(vColor.r, vColor.g, vColor.b, 1.0f);
+    oTexture = texture(vTexture, TexCoord) * vec4(vColor, 1.0f);
 }

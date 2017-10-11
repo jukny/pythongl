@@ -1,7 +1,11 @@
 from pyglet.gl import *
+
 from ctypes import *
 import yaml
 from array import array
+import pyglet.image as pyi
+#from Image import open
+
 
 
 class Mesh:
@@ -16,10 +20,10 @@ class Mesh:
                 data = yaml.load(m)
                 self.vertices = self.__convert_to_single_array(data['vertices'],
                                                                data['colors'],
-                                                               data['textcoords'])
+                                                               data['tex_coords'])
                 self.indices = array('I', data['indices'])
-                #self.textcoords = array('I', data['textcoords'])
-                #self.color = array('f', map(lambda c: float(c)/255, data['colors']))
+                if 'texture_file' in data:
+                    self.__setup_texture(data['texture_file'])
         except IOError as ie:
             print(ie)
             exit(1)
@@ -30,6 +34,7 @@ class Mesh:
         self._VBO = GLuint(0)
         self._EBO = GLuint(0)
         self._setupMesh()
+
 
     def __convert_to_single_array(self, v, c, t=[]):
         result = []
@@ -75,12 +80,23 @@ class Mesh:
                      self.indices.tostring(),
                      GL_STATIC_DRAW)
 
-        glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(GLfloat), 0)
+        glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(GLfloat), 0)
         glEnableVertexAttribArray(0)
-        glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 6 * sizeof(GLfloat), 3*sizeof(GLfloat))
+        glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 8 * sizeof(GLfloat), 3*sizeof(GLfloat))
         glEnableVertexAttribArray(1)
+        glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 8 * sizeof(GLfloat), 6 * sizeof(GLfloat))
+        glEnableVertexAttribArray(2)
 
+    def __setup_texture(self, texture_file):
+        self.texture_image = pyi.load(texture_file).get_texture()
+        glBindTexture(self.texture_image.target, self.texture_image.id)
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT)
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT)
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR)
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR)
 
+    def transform(self, dt, fps):
+        pass
 
 if __name__ == '__main__':
     m = Mesh('shapes/triangle.yml')
