@@ -40,7 +40,7 @@ class GWindow (pyglet.window.Window):
                 print(ie)
         self.shader = Shader([self.vertex_shader_code], [self.fragment_shader_code])
         self.mesh = Mesh('shapes/triangle.yml')
-        #schedule_interval(self.update, get_fps())
+        schedule_interval(self.update, get_fps())
 
     def on_key_press(self, symbol, mods):
         if symbol == pyglet.window.key.ESCAPE:

@@ -4,7 +4,7 @@ from ctypes import *
 import yaml
 from array import array
 import pyglet.image as pyi
-#from Image import open
+import numpy
 
 
 
@@ -34,6 +34,7 @@ class Mesh:
         self._VBO = GLuint(0)
         self._EBO = GLuint(0)
         self._setupMesh()
+        self.total_time = 0
 
 
     def __convert_to_single_array(self, v, c, t=[]):
@@ -53,6 +54,7 @@ class Mesh:
         return array('f', result)
 
     def draw(self, shader):
+        #shader.uniform_matrix('transform', self.rot)
         glDrawElements(GL_TRIANGLES,
                        len(self.indices),
                        GL_UNSIGNED_INT,
@@ -96,7 +98,8 @@ class Mesh:
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR)
 
     def transform(self, dt, fps):
-        pass
+        self.total_time += dt
+       # self.rot = [0, 0, 1, 1]
 
 if __name__ == '__main__':
     m = Mesh('shapes/triangle.yml')
