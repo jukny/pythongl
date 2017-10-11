@@ -2,6 +2,8 @@ import pyglet
 import yaml
 
 from Shader import *
+from Mesh import Mesh
+from ctypes import *
 
 
 class GWindow (pyglet.window.Window):
@@ -37,12 +39,19 @@ class GWindow (pyglet.window.Window):
             except IOError as ie:
                 print(ie)
         self.shader = Shader([self.vertex_shader_code], [self.fragment_shader_code])
+        self.mesh = Mesh('shapes/triangle.yml')
 
     def on_key_press(self, symbol, mods):
         if symbol == pyglet.window.key.ESCAPE:
             self.close()
 
+    def on_draw(self):
+        glClear(GL_COLOR_BUFFER_BIT|GL_DEPTH_BUFFER_BIT)
+        self.shader.bind()
+        self.mesh.draw(self.shader)
+        self.shader.unbind()
+
 
 if __name__ == '__main__':
-    win = ()
+    win = GWindow()
     pyglet.app.run()

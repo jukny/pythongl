@@ -49,6 +49,9 @@ class Shader:
     def unbind(self):
         glUseProgram(0)
 
+    def vcl(self, name):
+        return glGetUniformLocation(self.handle, name)
+
     def uniformf(self, name, *values):
         if len(values) in range(1,5):
             {
@@ -56,7 +59,7 @@ class Shader:
                 2: glUniform2f,
                 3: glUniform3f,
                 4: glUniform4f
-            }[len(values)](glGetUniformLocation(self.handle, name), *values)
+            }[len(values)](glGetUniformLocation(self.handle, create_string_buffer(name.encode('utf-8'))), *values)
 
     def uniformi(self, name, *values):
         if len(values) in range(1,5):
