@@ -4,7 +4,7 @@ import yaml
 from Shader import *
 from Mesh import Mesh
 from pyglet.clock import schedule_interval, get_fps
-
+from Camera import Camera
 
 class GWindow (pyglet.window.Window):
 
@@ -27,19 +27,9 @@ class GWindow (pyglet.window.Window):
         self.set_fullscreen(self.configuration['window']['fullscreen'])
         self.set_caption(self.configuration['window']['caption'])
         self.set_mouse_cursor()
-        with open(self.configuration['OpenGL']['vertex_shader']) as glsl:
-            try:
-                self.vertex_shader_code = glsl.read().encode('utf-8')
-            except IOError as ie:
-                print(ie)
-                exit(1)
-        with open(self.configuration['OpenGL']['fragment_shader']) as glsl:
-            try:
-                self.fragment_shader_code = glsl.read().encode('utf-8')
-            except IOError as ie:
-                print(ie)
-        self.shader = Shader([self.vertex_shader_code], [self.fragment_shader_code])
-        self.mesh = Mesh('shapes/triangle.yml')
+        self.shader = Shader(self.configuration['Shaders'])
+        self.camera = Camera(self.configuration['Camera'])
+        self.mesh = Mesh('shapes/triangle.yml', self.camera, self.shader)
         schedule_interval(self.update, get_fps())
 
     def on_key_press(self, symbol, mods):

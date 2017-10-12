@@ -3,11 +3,22 @@ from ctypes import *
 
 
 class Shader:
-    def __init__(self, vert=[], frag=[], geom=[]):
+    def __init__(self, shaders):
+        with open(shaders['vertex_shader']) as glsl:
+            try:
+                self.vertex_shader_code = glsl.read().encode('utf-8')
+            except IOError as ie:
+                print(ie)
+                exit(1)
+        with open(shaders['fragment_shader']) as glsl:
+            try:
+                self.fragment_shader_code = glsl.read().encode('utf-8')
+            except IOError as ie:
+                print(ie)
         self.handle = glCreateProgram()
         self.linked = False
-        self.createShader(vert, GL_VERTEX_SHADER)
-        self.createShader(frag, GL_FRAGMENT_SHADER)
+        self.createShader(self.vertex_shader_code, GL_VERTEX_SHADER)
+        self.createShader(self.fragment_shader_code, GL_FRAGMENT_SHADER)
         #self.createShader(geom, GL_GEOMETRY_SHADER)
 
         self.link()
@@ -72,4 +83,4 @@ class Shader:
 
     def uniform_matrix(self, name, mat):
         loc = glGetUniformLocation(self.handle, name.encode('utf-8'))
-        glUniformMatrix4fv(loc, 1, False, (c_float * 16)(*mat))
+        glUniformMatrix4fv(loc, 1, False, mat)

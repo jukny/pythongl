@@ -4,13 +4,13 @@ from ctypes import *
 import yaml
 from array import array
 import pyglet.image as pyi
-import numpy
-
+import numpy as np
+import Matrixop as mo
 
 
 class Mesh:
 
-    def __init__(self, source):
+    def __init__(self, source, camera, shader):
         """
 
         :rtype: object
@@ -18,9 +18,14 @@ class Mesh:
         try:
             with open(source, 'r') as m:
                 data = yaml.load(m)
+                if data['color_index'] == "RGBA":
+                    self.color_index = 4
+                else:
+                    self.color_index = 3
                 self.vertices = self.__convert_to_single_array(data['vertices'],
                                                                data['colors'],
                                                                data['tex_coords'])
+                print(self.vertices)
                 self.indices = array('I', data['indices'])
                 if 'texture_file' in data:
                     self.__setup_texture(data['texture_file'])
@@ -33,6 +38,8 @@ class Mesh:
         self._VAO = GLuint(0)
         self._VBO = GLuint(0)
         self._EBO = GLuint(0)
+        self.camera = camera
+        self.shader = shader
         self._setupMesh()
         self.total_time = 0
 
@@ -44,22 +51,19 @@ class Mesh:
             result.extend(v[i:i + 3])
             if color_index >= (len(c)):
                 color_index = 0
-            result.extend([ float(col)/255 for col in c[color_index:color_index + 3]])
-            color_index += 3
-            if texture_index >= (len(c)):
+            result.extend([ float(col)/255 for col in c[color_index:color_index + self.color_index]])
+            color_index += self.color_index
+            if texture_index >= (len(t)):
                 texture_index = 0
             result.extend(t[texture_index:texture_index + 2])
             texture_index += 2
-        print(result)
         return array('f', result)
 
-    def draw(self, shader):
-        #shader.uniform_matrix('transform', self.rot)
+    def draw(self):
         glDrawElements(GL_TRIANGLES,
                        len(self.indices),
                        GL_UNSIGNED_INT,
                        None)
-        #glBindVertexArray(0)
 
     def _setupMesh(self):
         # VAO
@@ -82,12 +86,14 @@ class Mesh:
                      self.indices.tostring(),
                      GL_STATIC_DRAW)
 
-        glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(GLfloat), 0)
+        glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 9 * sizeof(GLfloat), 0)
         glEnableVertexAttribArray(0)
-        glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 8 * sizeof(GLfloat), 3*sizeof(GLfloat))
+        glVertexAttribPointer(1, 4, GL_FLOAT, GL_FALSE, 9 * sizeof(GLfloat), 3*sizeof(GLfloat))
         glEnableVertexAttribArray(1)
-        glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 8 * sizeof(GLfloat), 6 * sizeof(GLfloat))
+        glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 9 * sizeof(GLfloat), (3+self.color_index) * sizeof(GLfloat))
         glEnableVertexAttribArray(2)
+
+
 
     def __setup_texture(self, texture_file):
         self.texture_image = pyi.load(texture_file).get_texture()
@@ -96,10 +102,6 @@ class Mesh:
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT)
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR)
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR)
-
-    def transform(self, dt, fps):
-        self.total_time += dt
-       # self.rot = [0, 0, 1, 1]
 
 if __name__ == '__main__':
     m = Mesh('shapes/triangle.yml')
