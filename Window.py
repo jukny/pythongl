@@ -39,11 +39,12 @@ class GWindow (pyglet.window.Window):
     def on_draw(self):
         glClear(GL_COLOR_BUFFER_BIT|GL_DEPTH_BUFFER_BIT)
         self.shader.bind()
-        self.mesh.draw(self.shader)
+        self.mesh.draw()
         self.shader.unbind()
 
     def update(self, dt):
-       self.mesh.transform(dt, get_fps())
+       pass
+       #self.mesh.transform(dt, get_fps())
 
 if __name__ == '__main__':
     win = GWindow()

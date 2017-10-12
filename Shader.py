@@ -1,25 +1,26 @@
 from pyglet.gl import *
 from ctypes import *
+import numpy as np
 
 
 class Shader:
     def __init__(self, shaders):
         with open(shaders['vertex_shader']) as glsl:
             try:
-                self.vertex_shader_code = glsl.read().encode('utf-8')
+                self.vertex_shader_code = [glsl.read().encode('utf-8')]
             except IOError as ie:
                 print(ie)
                 exit(1)
         with open(shaders['fragment_shader']) as glsl:
             try:
-                self.fragment_shader_code = glsl.read().encode('utf-8')
+                self.fragment_shader_code = [glsl.read().encode('utf-8')]
             except IOError as ie:
                 print(ie)
         self.handle = glCreateProgram()
         self.linked = False
         self.createShader(self.vertex_shader_code, GL_VERTEX_SHADER)
         self.createShader(self.fragment_shader_code, GL_FRAGMENT_SHADER)
-        #self.createShader(geom, GL_GEOMETRY_SHADER)
+        # self.createShader(geom, GL_GEOMETRY_SHADER)
 
         self.link()
 
@@ -47,10 +48,10 @@ class Shader:
         temp = c_int(0)
         glGetProgramiv(self.handle, GL_LINK_STATUS, byref(temp))
         if not temp:
-            glGetProgramiv(self.handle, GL_INFO_LOG_LENGTH,  byref(temp))
+            glGetProgramiv(self.handle, GL_INFO_LOG_LENGTH, byref(temp))
             buffer = create_string_buffer(temp.value)
             glGetProgramInfoLog(self.handle, temp, None, buffer)
-            print (buffer.value)
+            print(buffer.value)
         else:
             self.linked = True
 
@@ -64,7 +65,7 @@ class Shader:
         return glGetUniformLocation(self.handle, name)
 
     def uniformf(self, name, *values):
-        if len(values) in range(1,5):
+        if len(values) in range(1, 5):
             {
                 1: glUniform1f,
                 2: glUniform2f,
@@ -73,7 +74,7 @@ class Shader:
             }[len(values)](glGetUniformLocation(self.handle, create_string_buffer(name.encode('utf-8'))), *values)
 
     def uniformi(self, name, *values):
-        if len(values) in range(1,5):
+        if len(values) in range(1, 5):
             {
                 1: glUniform1i,
                 2: glUniform2i,
@@ -83,4 +84,5 @@ class Shader:
 
     def uniform_matrix(self, name, mat):
         loc = glGetUniformLocation(self.handle, name.encode('utf-8'))
-        glUniformMatrix4fv(loc, 1, False, mat)
+        data_p = mat.ctypes.data_as(POINTER(c_float))
+        glUniformMatrix4fv(loc, 1, False, data_p)
