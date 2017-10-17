@@ -84,5 +84,9 @@ class Shader:
 
     def uniform_matrix(self, name, mat):
         loc = glGetUniformLocation(self.handle, name.encode('utf-8'))
-        data_p = mat.ctypes.data_as(POINTER(c_float))
+        data_p = mat.flatten().tolist()
+        if isinstance(data_p[0], list):
+            data_p = data_p[0]
+        print(name, data_p)
+        data_p = (c_float * len(data_p))(*data_p)
         glUniformMatrix4fv(loc, 1, False, data_p)

@@ -60,7 +60,7 @@ class Mesh:
         return array('f', result)
 
     def draw(self):
-        self.shader.uniform_matrix('model', mo.translate([0,0,0]))
+        self.shader.uniform_matrix('model', mo.rotx(10))
         self.shader.uniform_matrix('view', self.camera.target)
         self.shader.uniform_matrix('projection', self.camera.perspective)
         glDrawElements(GL_TRIANGLES,

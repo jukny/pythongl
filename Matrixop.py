@@ -5,6 +5,12 @@ from array import array
 def vec(vec):
     return np.array(vec)
 
+def identity():
+    return np.matrix([[1, 0, 0, 0],
+                      [0, 1, 0, 0],
+                      [0, 0, 1, 0],
+                      [0, 0, 0, 1]])
+
 def transform(m,v):
     return np.asarray(m * np.asmatrix(v).T)[:,0]
 
@@ -82,8 +88,8 @@ def rotx(a):
     s, c = sincos(a)
     return np.matrix([[ 1, 0,  0, 0],
                       [ 0, c, -s, 0],
-                      [-s, 0,  c, 0],
-                      ])
+                      [ 0, -s,  c, 0],
+                      [ 0,  0,  0, 1 ]])
 
 
 def roty(a):
@@ -120,5 +126,3 @@ def viewport(x, y, w, h):
                       [  0,   0, 1,     0],
                       [  0,   0, 0,     1]])
 
-if __name__ == '__main__':
-    print(rotate(-55, np.array([1,0,0])))
