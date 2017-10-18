@@ -41,6 +41,7 @@ class Mesh:
         self.camera = camera
         self.shader = shader
         self._setupMesh()
+        self.rot = mo.rotx(0) * mo.roty(0) * mo.rotz(0)
         self.total_time = 0
 
 
@@ -60,7 +61,7 @@ class Mesh:
         return array('f', result)
 
     def draw(self):
-        self.shader.uniform_matrix('model', mo.rotx(10))
+        self.shader.uniform_matrix('model', self.rot)
         self.shader.uniform_matrix('view', self.camera.target)
         self.shader.uniform_matrix('projection', self.camera.perspective)
         glDrawElements(GL_TRIANGLES,
@@ -96,6 +97,14 @@ class Mesh:
         glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 9 * sizeof(GLfloat), (3+self.color_index) * sizeof(GLfloat))
         glEnableVertexAttribArray(2)
 
+
+    def setrot(self, da, axis):
+        if axis == 'x':
+            self.rot = self.rot * mo.rotx(da)
+        if axis == 'y':
+            self.rot = self.rot * mo.roty(da)
+        if axis == 'z':
+            self.rot = self.rot * mo.rotz(da)
 
 
     def __setup_texture(self, texture_file):

@@ -10,9 +10,9 @@ Shaders:
   geom_shader: ""
 
 Camera:
-  eye: [0,0,-3]
+  eye: [0,0,3]
   target: [0,0,0]
   up: [0,1,0]
-  fow: 60
+  fow: 55
   aspect_ratio: '4/3'
 

@@ -4,6 +4,7 @@ import yaml
 from Shader import *
 from Mesh import Mesh
 from pyglet.clock import schedule_interval, get_fps
+from pyglet.window import key
 from Camera import Camera
 
 class GWindow (pyglet.window.Window):
@@ -35,6 +36,19 @@ class GWindow (pyglet.window.Window):
     def on_key_press(self, symbol, mods):
         if symbol == pyglet.window.key.ESCAPE:
             self.close()
+        if symbol == pyglet.window.key.UP:
+            self.mesh.setrot(1,'x')
+        if symbol == pyglet.window.key.DOWN:
+            self.mesh.setrot(-1,'x')
+        if symbol == key.LEFT:
+            self.mesh.setrot(1, 'y')
+        if symbol == key.RIGHT:
+            self.mesh.setrot(-1, 'y')
+        if symbol == key.Q:
+            self.mesh.setrot(1,'z')
+        if symbol == key.E:
+            self.mesh.setrot(-1, 'z')
+
 
     def on_draw(self):
         glClear(GL_COLOR_BUFFER_BIT|GL_DEPTH_BUFFER_BIT)

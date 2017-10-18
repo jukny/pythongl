@@ -3,7 +3,7 @@ import numpy as np
 from array import array
 
 def vec(vec):
-    return np.array(vec)
+    return np.matrix(vec)
 
 def identity():
     return np.matrix([[1, 0, 0, 0],
@@ -35,15 +35,14 @@ def orthographic(l, r, b, t, n, f):
                       [0,      0,      -2.0/dz, rz],
                       [0,       0,     0,        1]])
 
-def perspective(fow, aspect, n, f):
-    s = 1.0/math.tan(math.radians(fow)/2.0)
-    sx, sy = s / aspect, s
-    zz = (f + n)/ (n - f)
-    zw = s*f*n/(n-f)
-    return np.matrix([[sx, 0,  0,  0],
-                      [0,  sy, 0,  0],
-                      [0,  0,  zz, zw],
-                      [0,  0,  -1, 0]])
+def perspective(fow, aspect, near, far):
+    f = 1.0/math.tan(math.radians(fow)/2.0)
+    zz = (far + near)/ (near - far)
+    zw = (2*far*near)/(near-far)
+    return np.matrix([[f/aspect,  0,   0,  0],
+                      [       0,  f,   0,  0],
+                      [       0,  0,  zz, zw],
+                      [       0,  0,  -1,  0]])
 
 def frustrum(x0, x1, y0, y1, z0, z1):
     a = (x1+x0)/(x1-x0)
