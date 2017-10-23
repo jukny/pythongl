@@ -31,26 +31,16 @@ class GWindow (pyglet.window.Window):
         self.shader = Shader(self.configuration['Shaders'])
         self.camera = Camera(self.configuration['Camera'])
         self.mesh = Mesh('shapes/triangle.yml', self.camera, self.shader)
+        self.__init_shader()
+        glEnable(GL_DEPTH_TEST)
         schedule_interval(self.update, get_fps())
 
     def on_key_press(self, symbol, mods):
-        if symbol == pyglet.window.key.ESCAPE:
+        if symbol == key.ESCAPE:
             self.close()
-        if symbol == pyglet.window.key.UP:
-            self.mesh.setrot(1,'x')
-        if symbol == pyglet.window.key.DOWN:
-            self.mesh.setrot(-1,'x')
-        if symbol == key.LEFT:
-            self.mesh.setrot(1, 'y')
-        if symbol == key.RIGHT:
-            self.mesh.setrot(-1, 'y')
-        if symbol == key.Q:
-            self.mesh.setrot(1,'z')
-        if symbol == key.E:
-            self.mesh.setrot(-1, 'z')
-
 
     def on_draw(self):
+        glClearColor(0.2, 0.3, 0.3, 1.0)
         glClear(GL_COLOR_BUFFER_BIT|GL_DEPTH_BUFFER_BIT)
         self.shader.bind()
         self.mesh.draw()
@@ -59,6 +49,30 @@ class GWindow (pyglet.window.Window):
     def update(self, dt):
        pass
        #self.mesh.transform(dt, get_fps())
+
+    def __init_shader(self):
+        #VAO
+        glGenVertexArrays(1,self.mesh.VAO)
+        glBindVertexArray(self.mesh.VAO)
+
+        #VBO
+        glGenBuffers(1, self.mesh.VBO)
+        glBindBuffer(GL_ARRAY_BUFFER, self.mesh.VBO)
+        glBufferData(GL_ARRAY_BUFFER,
+                     self.mesh.vertice_byte_size(),
+                     self.mesh.to_string(),
+                     GL_STATIC_DRAW)
+
+        #Position
+        glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(GLfloat), 0)
+        glEnableVertexAttribArray(0)
+        # Normals
+        glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(GLfloat), 3 * sizeof(GLfloat))
+        glEnableVertexAttribArray(1)
+        # Texture coordinates
+        glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 8 * sizeof(GLfloat), 6 * sizeof(GLfloat))
+        glEnableVertexAttribArray(2)
+
 
 if __name__ == '__main__':
     win = GWindow()

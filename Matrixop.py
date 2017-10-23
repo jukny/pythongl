@@ -15,13 +15,13 @@ def transform(m,v):
     return np.asarray(m * np.asmatrix(v).T)[:,0]
 
 def magnitude(v):
-    return math.sqrt(np.sum(v ** 2))
+    return math.sqrt(np.sum(np.asarray(v) ** 2))
 
 def normalize(v):
     m = magnitude(v)
     if m == 0:
         return v
-    return v / m
+    return np.divide(np.matrix(v), m)
 
 def orthographic(l, r, b, t, n, f):
     dx = r - l
@@ -37,12 +37,13 @@ def orthographic(l, r, b, t, n, f):
 
 def perspective(fow, aspect, near, far):
     f = 1.0/math.tan(math.radians(fow)/2.0)
-    zz = (far + near)/ (near - far)
-    zw = (2*far*near)/(near-far)
+    zz = (far + near)/ (far - near)
+    zw = -(2*far*near)/(far - near)
     return np.matrix([[f/aspect,  0,   0,  0],
                       [       0,  f,   0,  0],
                       [       0,  0,  zz, zw],
                       [       0,  0,  -1,  0]])
+
 
 def frustrum(x0, x1, y0, y1, z0, z1):
     a = (x1+x0)/(x1-x0)
@@ -59,9 +60,9 @@ def frustrum(x0, x1, y0, y1, z0, z1):
 def translate(xyz):
     x,y,z = xyz
     return np.matrix([[1, 0, 0, x],
-                     [0, 1, 0, y],
-                     [0, 0, 1, z],
-                     [0, 0, 0, 1]])
+                      [0, 1, 0, y],
+                      [0, 0, 1, z],
+                      [0, 0, 0, 1]])
 
 def scale(xyz):
     x,y,z = xyz
@@ -75,19 +76,19 @@ def sincos(a):
     return math.sin(a), math.cos(a)
 
 def rotate(a, xyz):
-    x,y,z = normalize(xyz)
+    x,y,z = normalize(xyz).tolist()[0]
     s,c = sincos(a)
     nc = 1 - c
-    return np.matrix([[x*x*nc +   c, x*y*nc - z*s, x*z*nc + y*s, 0],
-                      [y*x*nc + z*s, y*y*nc +   c, y*z*nc - x*s, 0],
-                      [x*z*nc - y*s, y*z*nc + x*s, z*z*nc +   c, 0],
-                      [           0,            0,            0, 1]])
+    return np.matrix([[   x*x*nc + c, x*y*nc -  z*s, x*z*nc + y*s, 0],
+                      [ y*x*nc + z*s,    y*y*nc + c, y*z*nc - x*s, 0],
+                      [ x*z*nc - y*s, y*z*nc +  x*s, z*z*nc +   c, 0],
+                      [            0,             0,            0, 1]])
 
 def rotx(a):
     s, c = sincos(a)
     return np.matrix([[ 1, 0,  0, 0],
                       [ 0, c, -s, 0],
-                      [ 0, -s,  c, 0],
+                      [ 0, s,  c, 0],
                       [ 0,  0,  0, 1 ]])
 
 
@@ -108,9 +109,9 @@ def rotz(a):
 
 
 def lookat(eye, target, up):
-    F = target[:3] - eye[:3]
+    F = np.matrix(target) - np.matrix(eye)
     f = normalize(F)
-    U = normalize(up[:3])
+    U = normalize(np.matrix(up))
     s = np.cross(f, U)
     u = np.cross(s, f)
     M = np.matrix(np.identity(4))
