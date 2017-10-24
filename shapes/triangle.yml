@@ -44,14 +44,9 @@ vertices: [
         -0.5,  0.5, -0.5,  0.0,  1.0,  0.0,  0.0,  1.0
           ]
 
-tex_coords: [1.0, 1.0,
-             1.0, 0.0,
-             0.0, 0.0,
-             0.0, 1.0]
+material:
+    diffuse: 'lib/container2.png'
+    specular: [0.5, 0.5, 0.5]
+    shininess: 64.0
 
-color_index: 'RGBA'
-
-colors: [255,255,255, 0]
-
-texture_file: 'lib/container.jpg'
 

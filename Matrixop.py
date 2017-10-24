@@ -116,7 +116,7 @@ def lookat(eye, target, up):
     u = np.cross(s, f)
     M = np.matrix(np.identity(4))
     M[:3, :3] = np.vstack([s,u,-f])
-    T = translate(-eye)
+    T = translate(eye)
     return M * T
 
 def viewport(x, y, w, h):

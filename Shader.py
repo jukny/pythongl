@@ -80,7 +80,7 @@ class Shader:
                 2: glUniform2i,
                 3: glUniform3i,
                 4: glUniform4i
-            }[len(values)](glGetUniformLocation(self.handle, name), *values)
+            }[len(values)](glGetUniformLocation(self.handle, name.encode('utf-8')), *values)
 
     def uniform_matrix(self, name, mat):
         loc = glGetUniformLocation(self.handle, name.encode('utf-8'))
@@ -88,4 +88,5 @@ class Shader:
         if isinstance(data_p[0], list):
             data_p = data_p[0]
         data_p = (c_float * len(data_p))(*data_p)
+        print(name, *data_p)
         glUniformMatrix4fv(loc, 1, False, data_p)

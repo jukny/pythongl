@@ -6,6 +6,7 @@ from Mesh import Mesh
 from pyglet.clock import schedule_interval, get_fps
 from pyglet.window import key
 from Camera import Camera
+import Matrixop as mo
 
 class GWindow (pyglet.window.Window):
 
@@ -27,6 +28,7 @@ class GWindow (pyglet.window.Window):
         self.set_size(self.configuration['window']['width'], self.configuration['window']['height'])
         self.set_fullscreen(self.configuration['window']['fullscreen'])
         self.set_caption(self.configuration['window']['caption'])
+        self.light = self.configuration['Light']
         self.set_mouse_cursor()
         self.shader = Shader(self.configuration['Shaders'])
         self.camera = Camera(self.configuration['Camera'])
@@ -43,7 +45,12 @@ class GWindow (pyglet.window.Window):
         glClearColor(0.2, 0.3, 0.3, 1.0)
         glClear(GL_COLOR_BUFFER_BIT|GL_DEPTH_BUFFER_BIT)
         self.shader.bind()
-        self.mesh.draw()
+        self.shader.uniformi('material.diffuse', c_int(0))
+        self.shader.uniformf('light.position', *self.light['position'])
+        self.shader.uniformf('light.ambient', *self.light['ambient'])
+        self.shader.uniformf('light.diffuse', *self.light['diffuse'])
+        self.shader.uniformf('light.specular', *self.light['specular'])
+        self.mesh.draw(self.shader, self.camera)
         self.shader.unbind()
 
     def update(self, dt):
