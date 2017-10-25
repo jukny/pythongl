@@ -11,10 +11,10 @@ Shaders:
   geom_shader: ""
 
 Camera:
-  eye: [0,0,1]
+  eye: [0,0,2]
   target: [0,0,0]
   up: [0,1,0]
-  fow: 75
+  fow: 55
   aspect_ratio: *id001
   far_plane: 100.0
   near_plane: 1

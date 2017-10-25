@@ -28,9 +28,9 @@ class GWindow (pyglet.window.Window):
         self.set_caption(self.configuration['window']['caption'])
         self.light = self.configuration['Light']
         self.set_mouse_cursor()
-
+        self.keyboard = key.KeyStateHandler()
+        self.push_handlers(self.keyboard)
         self.camera = Camera(self.configuration['Camera'])
-
 
         self.shader = Shader(self.configuration['Shaders'])
         self.mesh = Mesh('shapes/cube.yml')
@@ -49,8 +49,17 @@ class GWindow (pyglet.window.Window):
             self.mesh.rotate_x(1.0)
         if symbol == key.DOWN:
             self.mesh.rotate_x(-1.0)
+        if symbol == key.W:
+            self.camera.move_z(-0.01)
+        if symbol == key.S:
+            self.camera.move_z(0.01)
+        if symbol == key.A:
+            self.camera.move_x(-0.01)
+        if symbol == key.D:
+            self.camera.move_x(0.01)
 
     def on_draw(self):
+        self.handle_keyboard()
         glClearColor(0.2, 0.3, 0.3, 1.0)
         glClear(GL_COLOR_BUFFER_BIT|GL_DEPTH_BUFFER_BIT)
         self.shader.bind()
@@ -71,7 +80,8 @@ class GWindow (pyglet.window.Window):
        pass
        #self.mesh.transform(dt, get_fps())
 
-
+    def handle_keyboard(self):
+        pass
 
 if __name__ == '__main__':
     win = GWindow()

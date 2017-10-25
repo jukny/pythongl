@@ -40,3 +40,11 @@ class Camera:
 
     def viewMatrix(self):
         return mo.lookat(self.position, self.target, self.up)
+
+    def move_z(self, dz):
+        x,y,z = self.position
+        self.position = [x,y,z+dz]
+
+    def move_x(self, dx):
+        x,y,z = self.position
+        self.position = [x+dx,y,z]

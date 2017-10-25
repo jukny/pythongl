@@ -20,7 +20,7 @@ def magnitude(v):
 def normalize(v):
     m = magnitude(v)
     if m == 0:
-        return v
+        return np.matrix(v)
     return np.divide(np.matrix(v), m)
 
 def orthographic(l, r, b, t, n, f):
