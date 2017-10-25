@@ -24,6 +24,32 @@ class Shader:
 
         self.link()
 
+    def init_shader(self, s, v):
+        VAO = GLuint()
+        VBO = GLuint()
+        # VAO
+        glGenVertexArrays(1, VAO)
+
+        # VBO
+        glGenBuffers(1, VBO)
+        glBindBuffer(GL_ARRAY_BUFFER, VBO)
+        glBufferData(GL_ARRAY_BUFFER,
+                     s,
+                     v,
+                     GL_STATIC_DRAW)
+
+        glBindVertexArray(VAO)
+        # Position
+        glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(GLfloat), 0)
+        glEnableVertexAttribArray(0)
+        # Normals
+        glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(GLfloat), 3 * sizeof(GLfloat))
+        glEnableVertexAttribArray(1)
+        # Texture coordinates
+        glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 8 * sizeof(GLfloat), 6 * sizeof(GLfloat))
+        glEnableVertexAttribArray(2)
+
+
     def createShader(self, strings, type):
         count = len(strings)
         if count < 1:
@@ -42,6 +68,7 @@ class Shader:
             print(buffer.value)
         else:
             glAttachShader(self.handle, shader)
+            self.link()
 
     def link(self):
         glLinkProgram(self.handle)

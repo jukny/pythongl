@@ -1,12 +1,10 @@
 import pyglet
 import yaml
-
 from Shader import *
 from Mesh import Mesh
 from pyglet.clock import schedule_interval, get_fps
 from pyglet.window import key
 from Camera import Camera
-import Matrixop as mo
 
 class GWindow (pyglet.window.Window):
 
@@ -24,22 +22,33 @@ class GWindow (pyglet.window.Window):
             except IOError as ie:
                 print(ie)
                 exit(1)
-        super(GWindow, self).__init__()
-        self.set_size(self.configuration['window']['width'], self.configuration['window']['height'])
+        super(GWindow, self).__init__(resizable=True)
+        self.set_size(self.configuration['window']['resolution']['width'], self.configuration['window']['resolution']['height'])
         self.set_fullscreen(self.configuration['window']['fullscreen'])
         self.set_caption(self.configuration['window']['caption'])
         self.light = self.configuration['Light']
         self.set_mouse_cursor()
-        self.shader = Shader(self.configuration['Shaders'])
+
         self.camera = Camera(self.configuration['Camera'])
-        self.mesh = Mesh('shapes/triangle.yml', self.camera, self.shader)
-        self.__init_shader()
+
+
+        self.shader = Shader(self.configuration['Shaders'])
+        self.mesh = Mesh('shapes/cube.yml')
+        self.shader.init_shader(self.mesh.vertice_byte_size(), self.mesh.to_string())
         glEnable(GL_DEPTH_TEST)
         schedule_interval(self.update, get_fps())
 
     def on_key_press(self, symbol, mods):
         if symbol == key.ESCAPE:
             self.close()
+        if symbol == key.LEFT:
+            self.mesh.rotate_y(-1.0)
+        if symbol == key.RIGHT:
+            self.mesh.rotate_y(1.0)
+        if symbol == key.UP:
+            self.mesh.rotate_x(1.0)
+        if symbol == key.DOWN:
+            self.mesh.rotate_x(-1.0)
 
     def on_draw(self):
         glClearColor(0.2, 0.3, 0.3, 1.0)
@@ -50,35 +59,18 @@ class GWindow (pyglet.window.Window):
         self.shader.uniformf('light.ambient', *self.light['ambient'])
         self.shader.uniformf('light.diffuse', *self.light['diffuse'])
         self.shader.uniformf('light.specular', *self.light['specular'])
+        self.shader.uniformf('viewPos', *self.camera.position)
         self.mesh.draw(self.shader, self.camera)
         self.shader.unbind()
+
+    def on_resize(self, width, height):
+        glViewport(0, 0, width, height)
+        return pyglet.event.EVENT_HANDLED
 
     def update(self, dt):
        pass
        #self.mesh.transform(dt, get_fps())
 
-    def __init_shader(self):
-        #VAO
-        glGenVertexArrays(1,self.mesh.VAO)
-        glBindVertexArray(self.mesh.VAO)
-
-        #VBO
-        glGenBuffers(1, self.mesh.VBO)
-        glBindBuffer(GL_ARRAY_BUFFER, self.mesh.VBO)
-        glBufferData(GL_ARRAY_BUFFER,
-                     self.mesh.vertice_byte_size(),
-                     self.mesh.to_string(),
-                     GL_STATIC_DRAW)
-
-        #Position
-        glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(GLfloat), 0)
-        glEnableVertexAttribArray(0)
-        # Normals
-        glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(GLfloat), 3 * sizeof(GLfloat))
-        glEnableVertexAttribArray(1)
-        # Texture coordinates
-        glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 8 * sizeof(GLfloat), 6 * sizeof(GLfloat))
-        glEnableVertexAttribArray(2)
 
 
 if __name__ == '__main__':

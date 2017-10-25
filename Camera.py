@@ -11,7 +11,7 @@ class Camera:
 
     def __init__(self, conf):
         self.position =    conf['eye']
-        self.front = [0,0,-1]
+        self.target =      conf['target']
         self.up =          conf['up']
         #self.right =
         #self.world_up
@@ -21,10 +21,14 @@ class Camera:
         self.sensitivity = conf['mouse_sensitivity']
         #self.zoom
         self.fow =         conf['fow']
-        self.aspect_ratio = eval(conf['aspect_ratio'])
+        self.aspect_ratio = conf['aspect_ratio']['width']/conf['aspect_ratio']['height']
         self.near_plane =  conf['near_plane']
         self.far_plane =   conf['far_plane']
-        self.projection = self.perspective
+        try:
+            self.projection = getattr(locals()['self'], conf['projection'])
+        except AttributeError:
+            print('Projection: {}, not available'.format(conf['projection']))
+            self.projection = self.perspective
 
 
     def perspective(self):
@@ -35,4 +39,4 @@ class Camera:
         return mo.orthographic(-1, 1, -1, 1, self.near_plane, self.far_plane)
 
     def viewMatrix(self):
-        return mo.lookat(self.position, mo.vec(self.position) + mo.vec(self.front), self.up)
+        return mo.lookat(self.position, self.target, self.up)

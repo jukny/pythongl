@@ -8,7 +8,7 @@ import Matrixop as mo
 
 
 class Mesh:
-    def __init__(self, source, camera, shader):
+    def __init__(self, source):
         """
 
         :rtype: object
@@ -25,19 +25,18 @@ class Mesh:
         except yaml.YAMLError as ye:
             print(ye)
             exit(1)
-        self.VAO = GLuint(0)
-        self.VBO = GLuint(0)
-        self.rotation =  mo.rotate(0, mo.vec([0,0,0]))
-        self.translation = mo.translate([0, 0, 0])
-        self.scale = mo.scale([1, 1, 1])
+        self.rotation =  mo.rotate(0.0, mo.vec([0,0,0]))
+        self.translation = mo.translate([0.0, 0.0, 0.0])
+        self.scale = mo.scale([1.0, 1.0, 1.0])
 
 
     def draw(self, shader, camera):
         glActiveTexture(GL_TEXTURE0)
         glBindTexture(GL_TEXTURE_2D, self.texture_id)
-
-        view = self.translation * self.rotation * self.scale
-        shader.uniform_matrix('model', self.translation * self.rotation * self.scale)
+        model = self.scale * self.rotation * self.translation
+        shader.uniformf('material.specular', *self.material['specular'])
+        shader.uniformf('material.shininess', self.material['shininess'])
+        shader.uniform_matrix('model', model)
         shader.uniform_matrix('view', camera.viewMatrix())
         shader.uniform_matrix('projection', camera.projection())
         glDrawArrays(GL_TRIANGLES, 0, GLint(int(len(self.vertices)/8)))
@@ -51,6 +50,11 @@ class Mesh:
     def transform(self, da, v, type):
         pass
 
+    def rotate_y(self, da):
+        self.rotation = self.rotation * mo.roty(da)
+
+    def rotate_x(self, da):
+        self.rotation = self.rotation * mo.rotx(da)
 
     def __setup_texture(self, texture_file):
         self.texture_image = pyi.load(texture_file).get_texture()

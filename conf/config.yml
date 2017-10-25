@@ -1,7 +1,8 @@
 window:
   caption: "Hello World"
-  width: 640
-  height: 480
+  resolution: &id001
+    width: 640
+    height: 480
   fullscreen: No
 
 Shaders:
@@ -10,15 +11,16 @@ Shaders:
   geom_shader: ""
 
 Camera:
-  eye: [0,0,-3]
+  eye: [0,0,1]
   target: [0,0,0]
   up: [0,1,0]
-  fow: 70
-  aspect_ratio: '4/3'
+  fow: 75
+  aspect_ratio: *id001
   far_plane: 100.0
-  near_plane: 0.1
+  near_plane: 1
   mouse_speed: 2.5
   mouse_sensitivity: 0.1
+  projection: 'perspective'
 
 Light:
   position: [1.2, 1.0, 2.0]

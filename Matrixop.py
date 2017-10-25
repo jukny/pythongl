@@ -38,7 +38,7 @@ def orthographic(l, r, b, t, n, f):
 def perspective(fow, aspect, near, far):
     f = 1.0/math.tan(math.radians(fow)/2.0)
     zz = (far + near)/ (far - near)
-    zw = -(2*far*near)/(far - near)
+    zw = -(2.0*far*near)/(far - near)
     return np.matrix([[f/aspect,  0,   0,  0],
                       [       0,  f,   0,  0],
                       [       0,  0,  zz, zw],
@@ -78,11 +78,11 @@ def sincos(a):
 def rotate(a, xyz):
     x,y,z = normalize(xyz).tolist()[0]
     s,c = sincos(a)
-    nc = 1 - c
+    nc = 1.0 - c
     return np.matrix([[   x*x*nc + c, x*y*nc -  z*s, x*z*nc + y*s, 0],
                       [ y*x*nc + z*s,    y*y*nc + c, y*z*nc - x*s, 0],
                       [ x*z*nc - y*s, y*z*nc +  x*s, z*z*nc +   c, 0],
-                      [            0,             0,            0, 1]])
+                      [            0.0,             0,            0, 1.0]])
 
 def rotx(a):
     s, c = sincos(a)
@@ -109,15 +109,21 @@ def rotz(a):
 
 
 def lookat(eye, target, up):
-    F = np.matrix(target) - np.matrix(eye)
-    f = normalize(F)
-    U = normalize(np.matrix(up))
-    s = np.cross(f, U)
-    u = np.cross(s, f)
-    M = np.matrix(np.identity(4))
-    M[:3, :3] = np.vstack([s,u,-f])
-    T = translate(eye)
-    return M * T
+    zaxis = normalize(np.matrix(eye) - np.matrix(target))
+    xaxis = normalize(np.cross(np.matrix(up), zaxis ))
+    yaxis = np.cross(zaxis, xaxis)
+
+    orientation = np.matrix([[xaxis.item(0), xaxis.item(1), xaxis.item(2), 0],
+                             [yaxis.item(0), yaxis.item(1), yaxis.item(2), 0],
+                             [zaxis.item(0), zaxis.item(1), zaxis.item(2), 0],
+                             [            0,             0,             0, 1]])
+
+    translation = np.matrix([[     1,        0,       0, 0],
+                             [     0,        1,       0, 0],
+                             [     0,        0,       1, 0],
+                             [-eye[0], -eye[1], -eye[2], 1]])
+
+    return (orientation * translation)
 
 def viewport(x, y, w, h):
     x, y, w, h = map(float, (x, y, w, h))
