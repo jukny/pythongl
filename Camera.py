@@ -13,11 +13,13 @@ class Camera:
         self.position =    conf['eye']
         self.target =      conf['target']
         self.up =          conf['up']
+        self.front = [0,0,-1]
         #self.right =
         #self.world_up
         #self.yaw
         #self.pitch
-        self.speed =       conf['mouse_speed']
+        self.keyboard_speed = conf['keyboard_speed']
+        self.mouse_speed =       conf['mouse_speed']
         self.sensitivity = conf['mouse_sensitivity']
         #self.zoom
         self.fow =         conf['fow']
@@ -39,12 +41,23 @@ class Camera:
         return mo.orthographic(-1, 1, -1, 1, self.near_plane, self.far_plane)
 
     def viewMatrix(self):
-        return mo.lookat(self.position, self.target, self.up)
+        la = [a + b for a, b in zip(self.target, self.front)]
+        return mo.lookat(self.position, la, self.up)
 
     def move_z(self, dz):
         x,y,z = self.position
-        self.position = [x,y,z+dz]
+        xf,yf,zf = self.front
+        xn = x+dz*self.keyboard_speed*xf
+        yn = y+dz*self.keyboard_speed*yf
+        zn = z+dz*self.keyboard_speed*zf
+        self.position = [xn,yn,zn]
 
     def move_x(self, dx):
         x,y,z = self.position
-        self.position = [x+dx,y,z]
+        xn,yn,zn = mo.x_axis(self.front, self.up, self.keyboard_speed)
+        self.position = [x+dx*xn, y+dx*yn, z+dx*zn]
+        print(self.position)
+
+
+    def resize_viewport(self, w, h):
+        self.aspect_ratio = w/h

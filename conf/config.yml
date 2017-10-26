@@ -16,16 +16,25 @@ Camera:
   up: [0,1,0]
   fow: 55
   aspect_ratio: *id001
-  far_plane: 100.0
-  near_plane: 1
+  far_plane: 1000.0
+  near_plane: 1.0
+  keyboard_speed: 0.01
   mouse_speed: 2.5
   mouse_sensitivity: 0.1
   projection: 'perspective'
+  keyboard_speed: 0.1
 
 Light:
   position: [1.2, 1.0, 2.0]
-  ambient:  [0.5, 0.5, 0.5]
+  ambient:  [0.8, 0.8, 0.8]
   diffuse:  [0.5, 0.5, 0.5]
   specular: [1.0, 1.0, 1.0]
+
+Keyboard:
+  forward: 'W'
+  back: 'S'
+  strafe_left: 'A'
+  strafe_right: 'D'
+
 
 

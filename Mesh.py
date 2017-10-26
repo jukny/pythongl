@@ -47,9 +47,6 @@ class Mesh:
     def vertice_byte_size(self):
         return len(self.vertices) * sizeof(GLfloat)
 
-    def transform(self, da, v, type):
-        pass
-
     def rotate_y(self, da):
         self.rotation = self.rotation * mo.roty(da)
 

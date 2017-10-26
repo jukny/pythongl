@@ -36,7 +36,7 @@ class Shader:
         glBufferData(GL_ARRAY_BUFFER,
                      s,
                      v,
-                     GL_STATIC_DRAW)
+                     GL_DYNAMIC_DRAW)
 
         glBindVertexArray(VAO)
         # Position
@@ -115,5 +115,4 @@ class Shader:
         if isinstance(data_p[0], list):
             data_p = data_p[0]
         data_p = (c_float * len(data_p))(*data_p)
-        print(name, *data_p)
         glUniformMatrix4fv(loc, 1, False, data_p)

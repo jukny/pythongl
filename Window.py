@@ -2,7 +2,7 @@ import pyglet
 import yaml
 from Shader import *
 from Mesh import Mesh
-from pyglet.clock import schedule_interval, get_fps
+import pyglet.clock as clock
 from pyglet.window import key
 from Camera import Camera
 
@@ -29,6 +29,7 @@ class GWindow (pyglet.window.Window):
         self.light = self.configuration['Light']
         self.set_mouse_cursor()
         self.keyboard = key.KeyStateHandler()
+        self.keyboard_bindings = self.configuration['Keyboard']
         self.push_handlers(self.keyboard)
         self.camera = Camera(self.configuration['Camera'])
 
@@ -36,27 +37,11 @@ class GWindow (pyglet.window.Window):
         self.mesh = Mesh('shapes/cube.yml')
         self.shader.init_shader(self.mesh.vertice_byte_size(), self.mesh.to_string())
         glEnable(GL_DEPTH_TEST)
-        schedule_interval(self.update, get_fps())
+        clock.schedule(self.update)
 
     def on_key_press(self, symbol, mods):
         if symbol == key.ESCAPE:
             self.close()
-        if symbol == key.LEFT:
-            self.mesh.rotate_y(-1.0)
-        if symbol == key.RIGHT:
-            self.mesh.rotate_y(1.0)
-        if symbol == key.UP:
-            self.mesh.rotate_x(1.0)
-        if symbol == key.DOWN:
-            self.mesh.rotate_x(-1.0)
-        if symbol == key.W:
-            self.camera.move_z(-0.01)
-        if symbol == key.S:
-            self.camera.move_z(0.01)
-        if symbol == key.A:
-            self.camera.move_x(-0.01)
-        if symbol == key.D:
-            self.camera.move_x(0.01)
 
     def on_draw(self):
         self.handle_keyboard()
@@ -64,6 +49,7 @@ class GWindow (pyglet.window.Window):
         glClear(GL_COLOR_BUFFER_BIT|GL_DEPTH_BUFFER_BIT)
         self.shader.bind()
         self.shader.uniformi('material.diffuse', c_int(0))
+        #self.shader.uniformi('material.specular', self.mesh.material['specular'])
         self.shader.uniformf('light.position', *self.light['position'])
         self.shader.uniformf('light.ambient', *self.light['ambient'])
         self.shader.uniformf('light.diffuse', *self.light['diffuse'])
@@ -74,6 +60,7 @@ class GWindow (pyglet.window.Window):
 
     def on_resize(self, width, height):
         glViewport(0, 0, width, height)
+        self.camera.resize_viewport(width, height)
         return pyglet.event.EVENT_HANDLED
 
     def update(self, dt):
@@ -81,7 +68,26 @@ class GWindow (pyglet.window.Window):
        #self.mesh.transform(dt, get_fps())
 
     def handle_keyboard(self):
-        pass
+        try:
+            s = 60/clock.get_fps()
+        except ZeroDivisionError:
+            s = 1
+        if self.keyboard[key.UP]:
+            self.mesh.rotate_x(s)
+        if self.keyboard[key.DOWN]:
+            self.mesh.rotate_x(-s)
+        if self.keyboard[key.LEFT]:
+            self.mesh.rotate_y(s)
+        if self.keyboard[key.RIGHT]:
+            self.mesh.rotate_y(-s)
+        if self.keyboard[key.W]:
+            self.camera.move_z(s)
+        if self.keyboard[key.S]:
+            self.camera.move_z(-s)
+        if self.keyboard[key.A]:
+            self.camera.move_x(s)
+        if self.keyboard[key.D]:
+            self.camera.move_x(-s)
 
 if __name__ == '__main__':
     win = GWindow()

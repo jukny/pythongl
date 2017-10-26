@@ -132,3 +132,6 @@ def viewport(x, y, w, h):
                       [  0,   0, 1,     0],
                       [  0,   0, 0,     1]])
 
+def x_axis(front, up, speed):
+    result = normalize(np.cross(np.matrix(front), np.matrix(up))) * speed
+    return result.flatten().tolist()[0]
