@@ -4,14 +4,15 @@ from Shader import *
 from Mesh import Mesh
 import pyglet.clock as clock
 from pyglet.window import key
-from Camera import Camera
+from Camera import Camera, Direction
+from keymap import keymap
+
 
 class GWindow (pyglet.window.Window):
 
     """Main class. Handling window creation based on config
 
     """
-
     def __init__(self):
         with open('conf/config.yml') as cstream:
             try:
@@ -23,28 +24,43 @@ class GWindow (pyglet.window.Window):
                 print(ie)
                 exit(1)
         super(GWindow, self).__init__(resizable=True)
-        self.set_size(self.configuration['window']['resolution']['width'], self.configuration['window']['resolution']['height'])
-        self.set_fullscreen(self.configuration['window']['fullscreen'])
+        self.set_size(self.configuration['window']['width'], self.configuration['window']['height'])
+        self.w_fullscreen = self.configuration['window']['fullscreen']
+        self.set_fullscreen(self.w_fullscreen)
         self.set_caption(self.configuration['window']['caption'])
         self.light = self.configuration['Light']
-        self.set_mouse_cursor()
+
+        self.set_mouse_visible(False)
+        self.mouse_position = [self.configuration['window']['width']/2,
+                               self.configuration['window']['height']/2]
+
         self.keyboard = key.KeyStateHandler()
         self.keyboard_bindings = self.configuration['Keyboard']
         self.push_handlers(self.keyboard)
-        self.camera = Camera(self.configuration['Camera'])
+
+        self.camera = Camera()
 
         self.shader = Shader(self.configuration['Shaders'])
+
         self.mesh = Mesh('shapes/cube.yml')
+
         self.shader.init_shader(self.mesh.vertice_byte_size(), self.mesh.to_string())
         glEnable(GL_DEPTH_TEST)
-        clock.schedule(self.update)
+
+        clock.schedule(self.handle_keyboard)
 
     def on_key_press(self, symbol, mods):
-        if symbol == key.ESCAPE:
+        if symbol == keymap[self.keyboard_bindings['quit']]:
             self.close()
+        if symbol == keymap[self.keyboard_bindings['toggle_fullscreen']]:
+            self.toggle_fullscreen()
+
+    def on_mouse_motion(self, x, y, dx, dy):
+        self.camera.pitch_yaw(0,dy)
+        pass
 
     def on_draw(self):
-        self.handle_keyboard()
+        #self.handle_keyboard()
         glClearColor(0.2, 0.3, 0.3, 1.0)
         glClear(GL_COLOR_BUFFER_BIT|GL_DEPTH_BUFFER_BIT)
         self.shader.bind()
@@ -63,31 +79,35 @@ class GWindow (pyglet.window.Window):
         self.camera.resize_viewport(width, height)
         return pyglet.event.EVENT_HANDLED
 
-    def update(self, dt):
-       pass
-       #self.mesh.transform(dt, get_fps())
 
-    def handle_keyboard(self):
+    def handle_keyboard(self, a):
         try:
             s = 60/clock.get_fps()
         except ZeroDivisionError:
             s = 1
-        if self.keyboard[key.UP]:
+        #MESH
+        if self.keyboard[keymap[self.keyboard_bindings['rotate_up']]]:
             self.mesh.rotate_x(s)
-        if self.keyboard[key.DOWN]:
+        if self.keyboard[keymap[self.keyboard_bindings['rotate_down']]]:
             self.mesh.rotate_x(-s)
-        if self.keyboard[key.LEFT]:
+        if self.keyboard[keymap[self.keyboard_bindings['rotate_left']]]:
             self.mesh.rotate_y(s)
-        if self.keyboard[key.RIGHT]:
+        if self.keyboard[keymap[self.keyboard_bindings['rotate_right']]]:
             self.mesh.rotate_y(-s)
-        if self.keyboard[key.W]:
-            self.camera.move_z(s)
-        if self.keyboard[key.S]:
-            self.camera.move_z(-s)
-        if self.keyboard[key.A]:
-            self.camera.move_x(s)
-        if self.keyboard[key.D]:
-            self.camera.move_x(-s)
+
+        #CAMERA
+        if self.keyboard[keymap[self.keyboard_bindings['forward']]]:
+            self.camera.move(Direction.FORWARD, s)
+        if self.keyboard[keymap[self.keyboard_bindings['back']]]:
+            self.camera.move(Direction.BACKWARD, s)
+        if self.keyboard[keymap[self.keyboard_bindings['strafe_right']]]:
+            self.camera.move(Direction.RIGHT, s)
+        if self.keyboard[keymap[self.keyboard_bindings['strafe_left']]]:
+            self.camera.move(Direction.LEFT, s)
+
+    def toggle_fullscreen(self):
+        self.w_fullscreen = not self.w_fullscreen
+        self.set_fullscreen(self.w_fullscreen)
 
 if __name__ == '__main__':
     win = GWindow()

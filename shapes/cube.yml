@@ -45,7 +45,7 @@ vertices: [
           ]
 
 material:
-    diffuse: 'lib/container2.png'
+    diffuse_map: 'lib/container2.png'
     specular_map: 'lib/container2_specular.png'
     specular: [0.5,0.5,0.5]
     shininess: 32.0

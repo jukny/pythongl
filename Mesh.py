@@ -9,16 +9,12 @@ import Matrixop as mo
 
 class Mesh:
     def __init__(self, source):
-        """
-
-        :rtype: object
-        """
         try:
             with open(source, 'r') as m:
                 data = yaml.load(m)
                 self.vertices = array('f', data['vertices'])
                 self.material = data['material']
-                self.texture_id = self.__setup_texture(data['material']['diffuse'])
+                self.texture_id = self.__setup_texture(data['material']['diffuse_map'])
         except IOError as ie:
             print(ie)
             exit(1)

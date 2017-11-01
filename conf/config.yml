@@ -1,28 +1,13 @@
 window:
   caption: "Hello World"
-  resolution: &id001
-    width: 640
-    height: 480
+  width: 640
+  height: 480
   fullscreen: No
 
 Shaders:
   vertex_shader:  "lib/v_shader.glsl"
   fragment_shader: "lib/f_shader.glsl"
   geom_shader: ""
-
-Camera:
-  eye: [0,0,2]
-  target: [0,0,0]
-  up: [0,1,0]
-  fow: 55
-  aspect_ratio: *id001
-  far_plane: 1000.0
-  near_plane: 1.0
-  keyboard_speed: 0.01
-  mouse_speed: 2.5
-  mouse_sensitivity: 0.1
-  projection: 'perspective'
-  keyboard_speed: 0.1
 
 Light:
   position: [1.2, 1.0, 2.0]
@@ -35,6 +20,10 @@ Keyboard:
   back: 'S'
   strafe_left: 'A'
   strafe_right: 'D'
-
-
+  rotate_up: 'UP'
+  rotate_down: 'DOWN'
+  rotate_left: 'LEFT'
+  rotate_right: 'RIGHT'
+  quit: 'ESCAPE'
+  toggle_fullscreen: 'P'
 
