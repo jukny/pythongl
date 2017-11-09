@@ -1,9 +1,12 @@
-import Matrixop as mo
 from  math import cos, sin, radians
-import yaml
-import numpy as np
 
-class Direction:
+import numpy as np
+import yaml
+
+from glEngine.matrix import Matrixop as mo
+
+
+class Directions:
     FORWARD  = 0
     BACKWARD = 1
     LEFT     = 2
@@ -22,14 +25,14 @@ class Camera:
         except yaml.YAMLError as ye:
             print(ye)
             exit(1)
-        self.position =       self.config['position'] #Startup [0,0,10]
-        self.target =         self.config['target']   #Startup [0,0,0]
-        self.front =          [1,0,0]
-        self.camera_up =      [0,1,0]
-        self.right =          [1,0,0]
+        self.position =       mo.vec(self.config['position']) #Startup [0,0,10]
+        self.target =         mo.vec(self.config['target'])   #Startup [0,0,0]
+        self.front =          mo.vec([0,0,-1])
+        self.camera_up =      mo.vec([0,1,0])
+        self.right =          mo.vec([1,0,0])
         self.yaw =            -90.0
         self.pitch =          0
-        self.world_up =       [0,1,0]
+        self.world_up =       mo.vec([0,1,0])
         self.__update_camera_vectors()
 
         self.keyboard_speed = self.config['keyboard_speed']
@@ -53,19 +56,22 @@ class Camera:
         return mo.orthographic(-1, 1, -1, 1, self.near_plane, self.far_plane)
 
     def viewMatrix(self):
-        la = mo.normalize(mo.vec(self.target) + mo.vec(self.front)).tolist()[0]
-        return mo.lookat(self.position, la, self.camera_up)
+        return mo.lookat(self.position, self.target, self.camera_up)
 
     def move(self, direction, delta):
         velocity = self.keyboard_speed * delta
-        if direction == Direction.FORWARD:
-            self.position = (mo.vec(self.position) + (velocity*mo.vec(self.front))).tolist()[0]
-        if direction == Direction.BACKWARD:
-            self.position = (mo.vec(self.position) - (velocity*mo.vec(self.front))).tolist()[0]
-        if direction == Direction.RIGHT:
-            self.position = (mo.vec(self.position) - (velocity*mo.vec(self.right))).tolist()[0]
-        if direction == Direction.LEFT:
-            self.position = (mo.vec(self.position) + (velocity*mo.vec(self.right))).tolist()[0]
+        if direction == Directions.FORWARD:
+            self.position = self.position + velocity*self.front
+            self.target = self.target + velocity*self.front
+        if direction == Directions.BACKWARD:
+            self.position = self.position - velocity*self.front
+            self.target = self.target - velocity * self.front
+        if direction == Directions.RIGHT:
+            self.position = self.position - velocity*self.right
+            self.target = self.target - velocity*self.right
+        if direction == Directions.LEFT:
+            self.position = self.position + velocity*self.right
+            self.target = self.target + velocity * self.right
 
     def pitch_yaw(self, dx, dy, constrainPitch=True):
         self.yaw += self.sensitivity * dx
@@ -75,7 +81,6 @@ class Camera:
                 self.pitch = 89.0
             if self.pitch < -89.0:
                 self.pitch = -89.0
-
         self.__update_camera_vectors()
 
     def resize_viewport(self, w, h):
@@ -88,11 +93,20 @@ class Camera:
         if self.fow > 180:
             self.fow = 180
 
+    def get_position(self):
+        return self.position.tolist()[0]
+
     def __update_camera_vectors(self):
         fx = cos(radians(self.yaw)) * cos(radians(self.pitch))
+        if np.isclose(fx,0):
+            fx = 0
         fy = sin(radians(self.pitch))
+        if np.isclose(fy,0):
+            fy = 0
         fz = sin(radians(self.yaw)) * cos(radians(self.pitch))
-        self.front = mo.normalize([fx,fy,fz]).tolist()[0]
-        self.right = mo.normalize(np.cross(mo.vec(self.front), mo.vec(self.world_up))).tolist()[0]
-        self.camera_up = mo.normalize(np.cross(mo.vec(self.right), mo.vec(self.front))).tolist()[0]
+        if np.isclose(fz, 0):
+            fz = 0
+        self.front = mo.normalize(mo.vec([fx,fy,fz]))
+        self.right = mo.normalize(np.cross(self.front, self.world_up))
+        self.camera_up = mo.normalize(np.cross(self.right, self.front))
 

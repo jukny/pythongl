@@ -3,6 +3,7 @@ window:
   width: 640
   height: 480
   fullscreen: No
+  resizeable: True
 
 Shaders:
   vertex_shader:  "lib/v_shader.glsl"

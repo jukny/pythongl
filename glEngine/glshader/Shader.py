@@ -36,7 +36,7 @@ class Shader:
         glBufferData(GL_ARRAY_BUFFER,
                      s,
                      v,
-                     GL_DYNAMIC_DRAW)
+                     GL_STATIC_DRAW)
 
         glBindVertexArray(VAO)
         # Position

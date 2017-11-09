@@ -24,7 +24,7 @@ def normalize(v):
     return np.divide(np.matrix(v), m)
 
 def orthographic(l, r, b, t, n, f):
-    dx = r - l
+    dx
     dy = t - b
     dz = f - n
     rx = -(r + l) / (r - l)
@@ -106,11 +106,12 @@ def rotz(a):
                       [s, c, 0, 0],
                       [0, 0, 1, 0],
                       [0, 0, 0, 1]])
-
+def transpose(mat):
+    return np.transpose(mat)
 
 def lookat(eye, target, up):
-    zaxis = normalize(np.matrix(eye) - np.matrix(target))
-    xaxis = normalize(np.cross(np.matrix(up), zaxis ))
+    zaxis = normalize(eye - target)
+    xaxis = normalize(np.cross(up, zaxis ))
     yaxis = np.cross(zaxis, xaxis)
 
     orientation = np.matrix([[xaxis.item(0), xaxis.item(1), xaxis.item(2), 0],
@@ -118,12 +119,12 @@ def lookat(eye, target, up):
                              [zaxis.item(0), zaxis.item(1), zaxis.item(2), 0],
                              [            0,             0,             0, 1]])
 
-    translation = np.matrix([[     1,        0,       0, 0],
-                             [     0,        1,       0, 0],
-                             [     0,        0,       1, 0],
-                             [-eye[0], -eye[1], -eye[2], 1]])
+    translation = np.matrix([[           1,            0,            0, 0],
+                             [           0,            1,            0, 0],
+                             [           0,            0,            1, 0],
+                             [-eye.item(0), -eye.item(1), -eye.item(2), 1]])
 
-    return (orientation * translation)
+    return (translation * orientation)
 
 def viewport(x, y, w, h):
     x, y, w, h = map(float, (x, y, w, h))

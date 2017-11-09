@@ -6,17 +6,17 @@ from pyglet.window import key
 from glEngine.glcamera.Camera import Camera, Directions
 from glEngine.glmesh import Mesh
 from glEngine.glshader.Shader import *
-from glEngine.keyboard import keymap
+from glEngine.keyboard import keymap, keyboard
 
 
-class GWindow (pyglet.window.Window):
+class GLWindow (pyglet.window.Window):
 
     """Main class. Handling window creation based on config
 
     """
-    def __init__(self):
+    def __init__(self, config):
         self.print_versions()
-        with open('conf/config.yml') as cstream:
+        with open(config) as cstream:
             try:
                 self.configuration = yaml.load(cstream)
             except yaml.YAMLError as exc:
@@ -25,20 +25,20 @@ class GWindow (pyglet.window.Window):
             except IOError as ie:
                 print(ie)
                 exit(1)
-        super(GWindow, self).__init__(resizable=True)
+        super(GLWindow, self).__init__(self.configuration['resizeable'])
         self.__setup_window()
 
         self.light = self.configuration['Light']
 
 
 
-        self.keyboard = key.KeyStateHandler()
-        self.keyboard_bindings = self.configuration['Keyboard']
+        self.keyboard = keyboard.gl_keyboard(self.configuration['Keyboard'])
         self.push_handlers(self.keyboard)
+        clock.schedule(self.keyboard.handle_keyboard)
 
         self.camera = Camera()
 
-        self.shader = Shader(self.configuration['Shaders'])
+        #self.shader = Shader(self.configuration['Shaders'])
 
         self.mesh = Mesh('shapes/cube.yml')
 
@@ -46,7 +46,17 @@ class GWindow (pyglet.window.Window):
 
         glEnable(GL_DEPTH_TEST)
 
-        clock.schedule(self.handle_keyboard)
+
+    def set_shader(self, override=""):
+        if override:
+            exit(1)
+        else:
+            self.shader = Shader(self.configuration['Shaders'])
+            for mesh in self.world:
+                mesh.set_shader(self.shader)
+
+    def set_camera(self):
+        self.camera = Camera()
 
     def __setup_window(self):
         self.set_size(self.configuration['window']['width'], self.configuration['window']['height'])
@@ -95,15 +105,6 @@ class GWindow (pyglet.window.Window):
             s = 60/clock.get_fps()
         except ZeroDivisionError:
             s = 1
-        #MESH
-        #if self.keyboard[keymap[self.keyboard_bindings['rotate_up']]]:
-        #    self.glmesh.rotate_x(s)
-        #if self.keyboard[keymap[self.keyboard_bindings['rotate_down']]]:
-        #    self.glmesh.rotate_x(-s)
-        #if self.keyboard[keymap[self.keyboard_bindings['rotate_left']]]:
-        #    self.glmesh.rotate_y(s)
-        #if self.keyboard[keymap[self.keyboard_bindings['rotate_right']]]:
-        #    self.glmesh.rotate_y(-s)
 
         #CAMERA
         if self.keyboard[keymap[self.keyboard_bindings['forward']]]:
@@ -134,6 +135,5 @@ class GWindow (pyglet.window.Window):
         print("OpenGL Version: {}".format(string_at(version).decode()))
         print("GLSL Version: {}".format(string_at(glsl_version).decode()))
 
-if __name__ == '__main__':
-    win = GWindow()
-    pyglet.app.run()
+    def run(self):
+        pyglet.app.run()
